@@ -1,7 +1,7 @@
-def success(data, message=None):
+def success(data, code=200, message=None):
     return {
         "status": "success",
-        "statusCode": 200,
+        "statusCode": code,
         "data": data,
         "message": message
     }
@@ -14,7 +14,7 @@ def notfound(message):
         "message": message
     }
 
-def error(message, code):
+def error(code, message):
     return {
         "status": "error",
         "statusCode": code,
