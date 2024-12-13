@@ -1,48 +1,62 @@
 from flask import Flask, request
+from flask_smorest import abort
+from custom_reponse import success, error, notfound
+from db import stores, items
+import uuid
+
 
 app = Flask(__name__)
 
-stores = [{'name': 'My Store', 'items': [{'name': 'my item', 'price': 15.99}]}]
-
-def success(data):
-    return {'data': data}
-
-def error(message, code):
-    return {'error': {'code': code, 'message': message}}
-
-
+# stores = [{'name': 'My Store', 'items': [{'name': 'my item', 'price': 15.99}]}]
 
 @app.get('/store')
-def get_store():
-    return success(stores), 200
+def get_stores():
+    return success(list(stores.values())), 200
 
 
 @app.post('/store')
 def create_store():
-    request_data = request.get_json()
+    store_data = request.get_json()
+    store_id = uuid.uuid4().hex
+    store = {**store_data, "id": store_id}
+    stores.update({
+        store_id: store
+    })
 
-    filtered_stored = [s for s in stores if s['name'] == request_data['name']]
+    return success(store)
 
-    if len(filtered_stored) > 0:
-        return error('Store already exists', 409), 409
 
-    new_store = {'name': request_data['name'], 'items': request_data['items']}
+@app.post('/item')
+def create_item():
+    item_data = request.get_json()
 
-    stores.append(new_store)
+    if item_data['stored_id'] not in stores:
+        return notfound('Store not found')
     
-    return success(new_store), 200
+    item_id = uuid.uuid4().hex
+    item = {**item_data, 'id': item_id}
+    items[item_id] = item
+
+    return success(item)
 
 
-@app.post('/store/<string:name>/item')
-def create_item(name):
-    request_data = request.get_json()
-    for store in stores:
-        if store['name'] == name:
-            new_item = {'name': request_data['name'], 'price': request_data['price']}
-            store['items'].append(new_item)
+@app.get('/item')
+def get_all_items():
+    return success(list(items.values()))
 
-            print(stores)
 
-            return success(new_item), 200
-    
-    return error('Store not found', 404), 404
+@app.get('/store/<string:store_id>')
+def get_store(store_id):
+    try:
+        return success(stores[store_id])
+    except KeyError:
+        abort(404, message='Store not found')
+
+
+@app.get('/store/<string:item_id>')
+def get_item(item_id):
+    try:
+        return success(items[item_id])
+    except KeyError:
+        abort(404, message='Item not found')
+
