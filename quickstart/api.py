@@ -5,6 +5,9 @@ app = Flask(__name__)
 
 @app.route('/me')
 def me_api():
+    # return {
+    #     'logger': app.logger.name
+    # }
     return {
         'usernmae': 'larjia',
         'theme': 'light',
