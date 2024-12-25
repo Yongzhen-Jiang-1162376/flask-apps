@@ -14,8 +14,8 @@ def index():
     db = get_db()
     posts = db.execute(
         'select p.id, p.title, p.body, p.created, p.author_id, u.username'
-        'from post p join user u on p.author_id = u.id'
-        'order by created desc'
+        ' from post p join user u on p.author_id = u.id'
+        ' order by created desc'
     ).fetchall()
     
     return render_template('blog/index.html', posts=posts)
@@ -23,7 +23,7 @@ def index():
 
 @blog_bp.route('/create', methods=('GET', 'POST'))
 @login_required
-def created():
+def create():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
