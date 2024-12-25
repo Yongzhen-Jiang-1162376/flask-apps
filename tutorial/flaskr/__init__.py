@@ -28,5 +28,10 @@ def create_app(test_config=None):
 
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
+    
+    from .blog import blog_bp
+    app.register_blueprint(blog_bp)
+
+    app.add_url_rule('/', endpoint='index')
 
     return app
